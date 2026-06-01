@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hunter Engine — Demos</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(160deg,#0d1426,#131f38);
+    font-family:'Inter',system-ui,Arial,sans-serif;color:#e8eef7;padding:30px}
+  .box{max-width:680px;text-align:center}
+  .logo{width:54px;height:54px;border-radius:15px;background:linear-gradient(135deg,#5b50e0,#0ea5a4);display:grid;place-items:center;color:#fff;font-weight:700;font-size:20px;margin:0 auto 18px}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0 0 8px}
+  p{color:#9fb0cc;line-height:1.6;margin:0 auto 30px;max-width:520px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  a.card{display:block;text-decoration:none;background:rgba(255,255,255,.04);border:1px solid #243349;border-radius:18px;padding:26px 22px;color:#e8eef7;transition:.15s}
+  a.card:hover{transform:translateY(-3px);border-color:#5b50e0;background:rgba(91,80,224,.12)}
+  a.card .t{font-weight:600;font-size:18px;margin-bottom:6px}
+  a.card .d{color:#9fb0cc;font-size:13.5px;line-height:1.5}
+  .foot{margin-top:28px;color:#67768f;font-size:12px}
+  @media(max-width:560px){.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">HE</div>
+    <h1>Hunter Engine</h1>
+    <p>Two live demos of what we build for bail bond agencies. Sample data, fully clickable.</p>
+    <div class="cards">
+      <a class="card" href="./bail-bond-ai-dashboard-demo.html">
+        <div class="t">Operations Dashboard</div>
+        <div class="d">The daily view. Active bonds, court dates, check-ins, and FTA risk flags at a glance.</div>
+      </a>
+      <a class="card" href="./ai-operating-system-demo.html">
+        <div class="t">AI Operating System</div>
+        <div class="d">The full platform. Financials, risk scoring, collections, compliance, integrations, and mobile.</div>
+      </a>
+    </div>
+    <div class="foot">Demo environment · sample data · Hunter Engine</div>
+  </div>
+</body>
+</html>

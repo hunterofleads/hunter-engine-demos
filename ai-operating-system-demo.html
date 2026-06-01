@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hunter Engine — Bail Bond AI Operating System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f5f9; --ink:#10182b; --ink2:#3a4660; --muted:#7c879c;
+    --line:#e9ecf4; --card:#fff; --accent:#4338ca; --accent2:#0ea5a4;
+    --green:#0f9d6b; --amber:#c98a08; --red:#e0455e;
+    --greenbg:#e7f6ef; --amberbg:#fdf3df; --redbg:#fdebee; --inkbg:#eef1f7;
+    --shadow:0 1px 2px rgba(16,24,43,.04),0 8px 24px rgba(16,24,43,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+  .muted{color:var(--muted)}
+  .app{display:grid;grid-template-columns:252px 1fr;min-height:100vh}
+  aside{background:#0d1426;color:#cdd6e8;padding:20px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:auto}
+  .brand{display:flex;align-items:center;gap:11px;padding:0 8px 16px}
+  .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#5b50e0,#0ea5a4);display:grid;place-items:center;color:#fff;font-weight:700}
+  .brand h1{font-family:'Fraunces',serif;font-size:15px;margin:0;color:#fff;font-weight:600;line-height:1.2}
+  .brand small{color:#8290ad;font-size:11px}
+  .navlabel{color:#5e6c87;font-size:10px;text-transform:uppercase;letter-spacing:.7px;padding:14px 10px 6px;font-weight:600}
+  nav{display:flex;flex-direction:column;gap:2px}
+  .nav{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;color:#aab6cf;cursor:pointer;font-weight:500;font-size:13px;border:none;background:none;text-align:left;width:100%;font-family:inherit;transition:.12s}
+  .nav:hover{background:#16203a;color:#fff}
+  .nav.on{background:linear-gradient(135deg,#4338ca,#3f3ac0);color:#fff;box-shadow:0 6px 16px rgba(67,56,202,.35)}
+  .nav .ic{width:16px;text-align:center}
+  .sys{margin-top:14px;background:#101a30;border:1px solid #1d2942;border-radius:11px;padding:11px 12px;font-size:12px}
+  .sys .ok{color:#43d6a0;font-weight:600;display:flex;align-items:center;gap:7px}
+  .sys .ok::before{content:"";width:8px;height:8px;border-radius:50%;background:#43d6a0;box-shadow:0 0 0 3px rgba(67,214,160,.2)}
+  .soc{margin-top:8px;font-size:10px;color:#8290ad;display:flex;gap:6px;flex-wrap:wrap}
+  .soc span{border:1px solid #25324d;border-radius:6px;padding:2px 6px}
+  main{display:flex;flex-direction:column;min-width:0}
+  .topbar{position:sticky;top:0;z-index:4;background:#fff;border-bottom:1px solid var(--line);padding:13px 28px;display:flex;align-items:center;gap:14px}
+  .cmd{flex:1;display:flex;align-items:center;gap:10px;background:#f7f8fc;border:1px solid var(--line);border-radius:11px;padding:0 8px 0 13px}
+  .cmd input{flex:1;border:none;background:none;outline:none;padding:12px 0;font-family:inherit;font-size:14px;color:var(--ink)}
+  .cmd button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;font-family:inherit}
+  .statepick{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:9px;padding:7px 11px}
+  .statepick b{color:var(--ink)}
+  .tag{font-size:11px;color:var(--accent);background:#eef0fe;border:1px solid #dcdffb;padding:5px 11px;border-radius:30px;font-weight:600}
+  .view{padding:24px 28px 50px;max-width:1120px}
+  .view h2{font-family:'Fraunces',serif;font-size:21px;font-weight:600;margin:0 0 4px;letter-spacing:-.3px}
+  .view .lede{color:var(--muted);margin-bottom:20px;max-width:660px;line-height:1.6}
+  .ans{display:none;background:linear-gradient(180deg,#fbfbff,#f5f6ff);border:1px solid #e3e4fb;border-left:3px solid var(--accent);border-radius:12px;padding:14px 16px;margin-bottom:20px;line-height:1.6}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+  .c{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:16px;box-shadow:var(--shadow)}
+  .c .n{font-family:'Fraunces',serif;font-size:25px;font-weight:600;letter-spacing:-.5px}
+  .c .l{color:var(--muted);font-size:12px;margin-top:3px}
+  .c .delta{font-size:11px;font-weight:600;margin-top:6px}
+  .up{color:var(--green)} .down{color:var(--red)}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:20px;box-shadow:var(--shadow);margin-bottom:18px}
+  .panel h3{font-size:14px;margin:0 0 14px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .live{font-size:11px;color:var(--green);font-weight:600;display:flex;align-items:center;gap:6px}
+  .live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px var(--greenbg)}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:11px 8px;font-size:13px}
+  th{color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--line)}
+  tbody tr{border-bottom:1px solid var(--line)} tbody tr:last-child{border-bottom:none}
+  td b{font-weight:600}
+  .badge{padding:3px 10px;border-radius:30px;font-size:11px;font-weight:600;white-space:nowrap}
+  .b-ok{background:var(--greenbg);color:var(--green)} .b-warn{background:var(--amberbg);color:var(--amber)} .b-risk{background:var(--redbg);color:var(--red)} .b-ink{background:var(--inkbg);color:var(--muted)}
+  .score{font-weight:700;font-family:'Fraunces',serif}
+  .heat{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+  .cell{aspect-ratio:1;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:600;color:#fff}
+  .auto{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
+  .auto:last-child{border-bottom:none}
+  .auto .t{font-weight:600}.auto .d{color:var(--muted);font-size:12.5px;margin-top:2px}
+  .sw{width:42px;height:24px;border-radius:20px;background:var(--green);position:relative;flex:none;cursor:pointer}
+  .sw.off{background:#cdd3df}
+  .sw::after{content:"";position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;right:3px;transition:.15s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+  .sw.off::after{right:auto;left:3px}
+  .pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  .stage{background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:13px}
+  .stage h4{margin:0 0 4px;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+  .stage .amt{font-family:'Fraunces',serif;font-size:19px;font-weight:600}
+  .stage .ct{font-size:12px;color:var(--muted)}
+  .ev{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .ev:last-child{border-bottom:none}
+  .dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex:none;box-shadow:0 0 0 3px #fff,0 0 0 4px currentColor}
+  .ev small{color:var(--muted);font-size:12px}
+  .intg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .icard{background:#fbfcfe;border:1px solid var(--line);border-radius:13px;padding:15px}
+  .icard .nm{font-weight:600;margin-bottom:3px}
+  .icard .ds{color:var(--muted);font-size:12px;margin-bottom:10px;min-height:32px}
+  .phones{display:flex;gap:22px;flex-wrap:wrap}
+  .phone{width:230px;border:1px solid var(--line);border-radius:24px;background:#fbfcfe;padding:14px;box-shadow:var(--shadow)}
+  .phone .scr{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px;min-height:330px}
+  .phone .ph-h{font-weight:600;font-size:13px;margin-bottom:10px}
+  .minirow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+  .pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block}
+  .p-red{background:var(--redbg);color:var(--red)} .p-amber{background:var(--amberbg);color:var(--amber)} .p-green{background:var(--greenbg);color:var(--green)} .p-ink{background:var(--inkbg);color:var(--muted)}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 13px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit;width:100%}
+  .bars{display:flex;align-items:flex-end;gap:14px;height:150px;padding-top:18px}
+  .bar{flex:1;background:linear-gradient(180deg,#5b50e0,#0ea5a4);border-radius:8px 8px 3px 3px;position:relative}
+  .bar span{position:absolute;bottom:-22px;left:0;right:0;text-align:center;color:var(--muted);font-size:11px}
+  .bar b{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:11px;font-weight:700}
+  .hide{display:none}
+  @media(max-width:900px){.app{grid-template-columns:1fr}aside{display:none}.cards,.intg{grid-template-columns:repeat(2,1fr)}.grid2,.pipe{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><div class="logo">HE</div><div><h1>Bail Bond AI OS</h1><small>Hunter Engine</small></div></div>
+    <nav id="nav">
+      <div class="navlabel">Operations</div>
+      <button class="nav on" data-v="overview"><span class="ic">▦</span> Overview</button>
+      <button class="nav" data-v="financials"><span class="ic">＄</span> Financial Overview</button>
+      <button class="nav" data-v="cases"><span class="ic">☰</span> Cases & Risk Heatmap</button>
+      <button class="nav" data-v="collections"><span class="ic">⇄</span> Collections Pipeline</button>
+      <button class="nav" data-v="calendar"><span class="ic">▤</span> Court Calendar</button>
+      <div class="navlabel">Intelligence</div>
+      <button class="nav" data-v="ai"><span class="ic">✦</span> Risk & AI Intelligence</button>
+      <div class="navlabel">Trust & Connect</div>
+      <button class="nav" data-v="compliance"><span class="ic">⚖</span> Compliance & Audit</button>
+      <button class="nav" data-v="integrations"><span class="ic">⚙</span> Integrations</button>
+      <button class="nav" data-v="mobile"><span class="ic">▢</span> Mobile & Portal</button>
+      <button class="nav" data-v="security"><span class="ic">🔒</span> Security & Settings</button>
+    </nav>
+    <div class="sys"><div class="ok">All systems running</div><div class="muted" style="margin-top:6px">9 automations active · multi-state</div>
+      <div class="soc"><span>SOC 2 ready</span><span>Role-based access</span><span>Encrypted</span></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div class="cmd"><span class="muted">✦</span><input id="ask" type="text" placeholder="Ask your operating system anything..." /><button onclick="runAsk()">Run</button></div>
+      <div class="statepick">Active state: <b>Georgia</b> ▾</div>
+      <span class="tag">DEMO</span>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section class="view" data-view="overview">
+      <h2>Good morning. Here is the whole agency at a glance.</h2>
+      <div class="lede">Every bond, payment, court date and risk flag in one place, updated in real time. The routine work ran overnight. State rules for Georgia are applied automatically.</div>
+      <div id="askAns" class="ans"></div>
+      <div class="cards">
+        <div class="c"><div class="n">$486K</div><div class="l">Premiums written (YTD)</div><div class="delta up">▲ 12% vs last year</div></div>
+        <div class="c"><div class="n">$38.2K</div><div class="l">Outstanding receivables</div><div class="delta down">▲ 4 accounts overdue</div></div>
+        <div class="c"><div class="n">38</div><div class="l">Active cases</div></div>
+        <div class="c"><div class="n">3</div><div class="l">FTA risk flags</div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Automations running <span class="live">live</span></h3>
+          <div class="auto"><div><div class="t">Court date reminders</div><div class="d">SMS, email and push before every deadline</div></div><div class="sw" onclick="this.classList.toggle('off')"></div></div>
+          <div class="auto"><div><div class="t">AI defendant risk scoring</div><div class="d">Recalculated on new public data and check-ins</div></div><div class="sw" onclick="this.classList.toggle('off')"></div></div>
+          <div class="auto"><div><div class="t">Predictive collections</div><div class="d">Nudges payers at their best contact times</div></div><div class="sw" onclick="this.classList.toggle('off')"></div></div>
+          <div class="auto"><div><div class="t">Re-arrest alerts</div><div class="d">Watches arrest record feeds where legal</div></div><div class="sw" onclick="this.classList.toggle('off')"></div></div>
+        </div>
+        <div class="panel"><h3>What the AI did <span class="live">live</span></h3><div id="feed"></div></div>
+      </div>
+    </section>
+
+    <!-- FINANCIALS -->
+    <section class="view hide" data-view="financials">
+      <h2>Real-time financial overview.</h2>
+      <div class="lede">Premiums written, what is outstanding, and commissions owed. No month-end spreadsheet, it is always current.</div>
+      <div class="cards">
+        <div class="c"><div class="n">$486,200</div><div class="l">Premiums written (YTD)</div><div class="delta up">▲ 12%</div></div>
+        <div class="c"><div class="n">$38,240</div><div class="l">Outstanding</div><div class="delta down">4 overdue</div></div>
+        <div class="c"><div class="n">$72,930</div><div class="l">Commissions owed</div></div>
+        <div class="c"><div class="n">$41,500</div><div class="l">Collected this month</div><div class="delta up">▲ 8%</div></div>
+      </div>
+      <div class="panel"><h3>Premiums written <span class="muted">by month</span></h3>
+        <div class="bars">
+          <div class="bar" style="height:52%"><b>$31K</b><span>Jan</span></div>
+          <div class="bar" style="height:60%"><b>$36K</b><span>Feb</span></div>
+          <div class="bar" style="height:48%"><b>$29K</b><span>Mar</span></div>
+          <div class="bar" style="height:74%"><b>$44K</b><span>Apr</span></div>
+          <div class="bar" style="height:88%"><b>$53K</b><span>May</span></div>
+          <div class="bar" style="height:70%"><b>$42K</b><span>Jun</span></div>
+        </div>
+        <p class="muted" style="margin-top:30px">Auto-synced from Stripe and Authorize.net. Commissions split by agent automatically.</p>
+      </div>
+    </section>
+
+    <!-- CASES + HEATMAP -->
+    <section class="view hide" data-view="cases">
+      <h2>Active cases and risk heatmap.</h2>
+      <div class="lede">Every open bond with an AI risk score. The heatmap shows where risk is concentrated across your portfolio.</div>
+      <div class="panel"><h3>Active bonds</h3>
+        <table><thead><tr><th>Defendant</th><th>Bond</th><th>Court date</th><th>AI risk score</th><th>Status</th></tr></thead><tbody>
+          <tr><td><b>Devon Hill</b></td><td>$5,000</td><td>Tomorrow</td><td><span class="score" style="color:var(--red)">86</span></td><td><span class="badge b-risk">High risk</span></td></tr>
+          <tr><td><b>Marcus Reed</b></td><td>$12,500</td><td>In 2 days</td><td><span class="score" style="color:var(--red)">79</span></td><td><span class="badge b-risk">High risk</span></td></tr>
+          <tr><td><b>Carla Mendez</b></td><td>$6,800</td><td>In 4 days</td><td><span class="score" style="color:var(--amber)">58</span></td><td><span class="badge b-warn">Watch</span></td></tr>
+          <tr><td><b>Priya Nair</b></td><td>$15,000</td><td>In 9 days</td><td><span class="score" style="color:var(--green)">22</span></td><td><span class="badge b-ok">On track</span></td></tr>
+          <tr><td><b>Jerome Banks</b></td><td>$1,500</td><td>In 15 days</td><td><span class="score" style="color:var(--green)">18</span></td><td><span class="badge b-ok">On track</span></td></tr>
+        </tbody></table>
+      </div>
+      <div class="panel"><h3>Portfolio risk heatmap <span class="muted">last 5 weeks</span></h3>
+        <div class="heat" id="heat"></div>
+        <p class="muted" style="margin-top:12px">Green is low risk, red is high. Each cell is a day. The system updates it as check-ins and court dates move.</p>
+      </div>
+    </section>
+
+    <!-- COLLECTIONS -->
+    <section class="view hide" data-view="collections">
+      <h2>Collections pipeline.</h2>
+      <div class="lede">The AI predicts who will pay and when, then nudges them at the right time through the right channel.</div>
+      <div class="pipe">
+        <div class="stage"><h4>Current</h4><div class="amt">$18.4K</div><div class="ct">21 accounts</div></div>
+        <div class="stage"><h4>1-15 days</h4><div class="amt">$9.1K</div><div class="ct">8 accounts</div></div>
+        <div class="stage"><h4>16-30 days</h4><div class="amt">$6.2K</div><div class="ct">5 accounts</div></div>
+        <div class="stage"><h4>31-60 days</h4><div class="amt">$3.1K</div><div class="ct">3 accounts</div></div>
+        <div class="stage"><h4>At risk</h4><div class="amt" style="color:var(--red)">$1.4K</div><div class="ct">1 account</div></div>
+      </div>
+      <div class="panel" style="margin-top:18px"><h3>Predictive collections <span class="live">AI</span></h3>
+        <table><thead><tr><th>Indemnitor</th><th>Balance</th><th>Likely to pay</th><th>Best contact</th><th>Action</th></tr></thead><tbody>
+          <tr><td><b>R. Mendez</b></td><td>$1,200</td><td><span class="badge b-ok">High 92%</span></td><td>Texts back evenings</td><td>SMS queued 7 PM</td></tr>
+          <tr><td><b>T. Brooks</b></td><td>$1,400</td><td><span class="badge b-risk">Low 31%</span></td><td>Answers calls AM</td><td>Call task created</td></tr>
+          <tr><td><b>K. Allen</b></td><td>$640</td><td><span class="badge b-warn">Medium 64%</span></td><td>Email opens midday</td><td>Email queued noon</td></tr>
+        </tbody></table>
+      </div>
+    </section>
+
+    <!-- COURT CALENDAR -->
+    <section class="view hide" data-view="calendar">
+      <h2>Court date calendar.</h2>
+      <div class="lede">Every hearing tracked, with reminders sent automatically by SMS, email and push. Nobody forgets a date.</div>
+      <div class="panel"><h3>Upcoming hearings <span class="live">reminders automatic</span></h3>
+        <table><thead><tr><th>Date</th><th>Defendant</th><th>Court</th><th>Reminders</th><th>Status</th></tr></thead><tbody>
+          <tr><td><b>Tomorrow 9:00 AM</b></td><td>Devon Hill</td><td>Fulton County</td><td>SMS · Email · Push</td><td><span class="badge b-warn">Sending today</span></td></tr>
+          <tr><td><b>Tomorrow 1:30 PM</b></td><td>Lisa Park</td><td>DeKalb County</td><td>SMS · Email · Push</td><td><span class="badge b-warn">Sending today</span></td></tr>
+          <tr><td><b>In 2 days</b></td><td>Marcus Reed</td><td>Cobb County</td><td>SMS · Email</td><td><span class="badge b-ink">Scheduled</span></td></tr>
+          <tr><td><b>In 4 days</b></td><td>Carla Mendez</td><td>Gwinnett County</td><td>SMS · Push</td><td><span class="badge b-ink">Scheduled</span></td></tr>
+          <tr><td><b>In 9 days</b></td><td>Priya Nair</td><td>Fulton County</td><td>SMS · Email · Push</td><td><span class="badge b-ok">Confirmed</span></td></tr>
+        </tbody></table>
+      </div>
+    </section>
+
+    <!-- RISK & AI -->
+    <section class="view hide" data-view="ai">
+      <h2>Risk and AI intelligence.</h2>
+      <div class="lede">Scoring built from public data and your own historical outcomes, so it gets smarter on your book of business over time.</div>
+      <div class="cards">
+        <div class="c"><div class="n">3</div><div class="l">High-risk defendants</div></div>
+        <div class="c"><div class="n">2</div><div class="l">Re-arrest alerts (30d)</div></div>
+        <div class="c"><div class="n">94%</div><div class="l">FTA prediction accuracy</div></div>
+        <div class="c"><div class="n">11</div><div class="l">Early interventions made</div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>Defendant risk scoring</h3>
+          <table><thead><tr><th>Defendant</th><th>Score</th><th>Top factor</th></tr></thead><tbody>
+            <tr><td><b>Devon Hill</b></td><td><span class="score" style="color:var(--red)">86</span></td><td>No check-in 2 days, prior FTA</td></tr>
+            <tr><td><b>Marcus Reed</b></td><td><span class="score" style="color:var(--red)">79</span></td><td>Quiet 9 days, high bond</td></tr>
+            <tr><td><b>Carla Mendez</b></td><td><span class="score" style="color:var(--amber)">58</span></td><td>Late on payment plan</td></tr>
+          </tbody></table>
+        </div>
+        <div class="panel"><h3>Re-arrest alerts <span class="live">where legal</span></h3>
+          <div class="ev"><span class="dot" style="color:var(--red);background:var(--red)"></span><div><div>New booking match — <span class="muted">possible re-arrest, Marcus Reed, Cobb County</span></div><small>22 min ago · review required</small></div></div>
+          <div class="ev"><span class="dot" style="color:var(--amber);background:var(--amber)"></span><div><div>Watchlist hit — <span class="muted">name match pending verification</span></div><small>3 hr ago</small></div></div>
+          <p class="muted" style="margin-top:6px">Pulled from arrest record APIs only where the data is publicly available and permitted in that state.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPLIANCE -->
+    <section class="view hide" data-view="compliance">
+      <h2>Compliance and audit, built in.</h2>
+      <div class="lede">Audit-ready reports per state insurance department, e-sign contracts, and a full activity trail. State rules toggle on automatically.</div>
+      <div class="grid2">
+        <div class="panel"><h3>Audit-ready reports</h3>
+          <div class="auto"><div><div class="t">Georgia DOI quarterly report</div><div class="d">Auto-generated, ready to file</div></div><span class="badge b-ok">Ready</span></div>
+          <div class="auto"><div><div class="t">Premium tax summary</div><div class="d">Per state, current quarter</div></div><span class="badge b-ok">Ready</span></div>
+          <div class="auto"><div><div class="t">Power of attorney log</div><div class="d">Every POA number tracked</div></div><span class="badge b-ok">Ready</span></div>
+          <p class="muted" style="margin-top:6px">Strict states covered out of the box: CA, FL, TX, NY. Toggle others per agency.</p>
+        </div>
+        <div class="panel"><h3>Digital contracts <span class="live">e-sign</span></h3>
+          <div class="auto"><div><div class="t">Bond agreement — Devon Hill</div><div class="d">State-compliant template, GA</div></div><span class="badge b-ok">Signed</span></div>
+          <div class="auto"><div><div class="t">Indemnitor agreement — R. Mendez</div><div class="d">Sent for e-signature</div></div><span class="badge b-warn">Pending</span></div>
+          <div class="auto"><div><div class="t">Payment plan — K. Allen</div><div class="d">Draft, awaiting review</div></div><span class="badge b-ink">Draft</span></div>
+        </div>
+      </div>
+      <div class="panel"><h3>Activity log & role-based permissions</h3>
+        <div class="ev"><span class="dot" style="color:var(--accent);background:var(--accent)"></span><div><div>Agent J. Smith viewed Devon Hill case <span class="muted">· role: Agent</span></div><small>9 min ago · logged</small></div></div>
+        <div class="ev"><span class="dot" style="color:var(--green);background:var(--green)"></span><div><div>Owner approved $1,200 write-off <span class="muted">· role: Owner</span></div><small>1 hr ago · logged</small></div></div>
+        <div class="ev"><span class="dot" style="color:var(--amber);background:var(--amber)"></span><div><div>Staff blocked from financials <span class="muted">· permission denied, logged</span></div><small>2 hr ago</small></div></div>
+      </div>
+    </section>
+
+    <!-- INTEGRATIONS -->
+    <section class="view hide" data-view="integrations">
+      <h2>Integrations.</h2>
+      <div class="lede">Connected to the tools US agencies actually use. Where a public API does not exist, the system bridges it cleanly.</div>
+      <div class="intg">
+        <div class="icard"><div class="nm">Stripe</div><div class="ds">Card and ACH payments, payment plans</div><span class="badge b-ok">Connected</span></div>
+        <div class="icard"><div class="nm">Authorize.net</div><div class="ds">Backup processor, recurring billing</div><span class="badge b-ok">Connected</span></div>
+        <div class="icard"><div class="nm">Court systems / public records</div><div class="ds">Docket and hearing pulls where APIs exist</div><span class="badge b-warn">Per county</span></div>
+        <div class="icard"><div class="nm">Skip tracing partners</div><div class="ds">Locate data for at-risk defendants</div><span class="badge b-ok">Connected</span></div>
+        <div class="icard"><div class="nm">Surety company portals</div><div class="ds">Power of attorney and reporting sync</div><span class="badge b-ok">Connected</span></div>
+        <div class="icard"><div class="nm">Arrest record feeds</div><div class="ds">Re-arrest alerts where legal</div><span class="badge b-warn">State-gated</span></div>
+      </div>
+    </section>
+
+    <!-- MOBILE -->
+    <section class="view hide" data-view="mobile">
+      <h2>Mobile and remote bonding.</h2>
+      <div class="lede">Write bonds from the jail parking lot. Let indemnitors pay and check in from their phone. Both sync to the same system instantly.</div>
+      <div class="phones">
+        <div class="phone"><div class="scr">
+          <div class="ph-h">Agent App — New Bond</div>
+          <div class="minirow"><span>Defendant</span><span>Devon Hill</span></div>
+          <div class="minirow"><span>Bond amount</span><span>$5,000</span></div>
+          <div class="minirow"><span>Premium</span><span>$500</span></div>
+          <div class="minirow"><span>County</span><span>Fulton, GA</span></div>
+          <div class="minirow"><span>POA #</span><span>auto-assigned</span></div>
+          <div class="minirow"><span>Contract</span><span class="pill p-amber">e-sign sent</span></div>
+          <div style="margin-top:14px"><button class="btn">Issue bond on-site</button></div>
+        </div></div>
+        <div class="phone"><div class="scr">
+          <div class="ph-h">Client / Indemnitor Portal</div>
+          <div class="minirow"><span>Balance</span><span>$1,200</span></div>
+          <div class="minirow"><span>Next payment</span><span>Fri, $200</span></div>
+          <div class="minirow"><span>Court date</span><span class="pill p-amber">Tomorrow 9 AM</span></div>
+          <div class="minirow"><span>Check-in</span><span class="pill p-green">Done today</span></div>
+          <div class="minirow"><span>Documents</span><span>2 signed</span></div>
+          <div style="margin-top:14px"><button class="btn">Make a payment</button></div>
+          <div style="margin-top:8px"><button class="btn" style="background:#eef1f7;color:var(--ink)">Check in now</button></div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- SECURITY -->
+    <section class="view hide" data-view="security">
+      <h2>Security and state-by-state settings.</h2>
+      <div class="lede">Built data-security first, SOC 2 ready, with compliance rules you switch on per state. Multi-tenant, so it scales across agencies.</div>
+      <div class="cards">
+        <div class="c"><div class="n">SOC 2</div><div class="l">Architecture ready</div></div>
+        <div class="c"><div class="n">AES-256</div><div class="l">Data encrypted at rest</div></div>
+        <div class="c"><div class="n">RBAC</div><div class="l">Role-based access control</div></div>
+        <div class="c"><div class="n">Multi-tenant</div><div class="l">Many agencies, many states</div></div>
+      </div>
+      <div class="panel"><h3>State compliance toggles</h3>
+        <div class="auto"><div><div class="t">California (strict)</div><div class="d">CDI reporting, rate rules, disclosures</div></div><div class="sw" onclick="this.classList.toggle('off')"></div></div>
+        <div class="auto"><div><div class="t">Florida (strict)</div><div class="d">DFS forms, premium caps</div></div><div class="sw" onclick="this.classList.toggle('off')"></div></div>
+        <div class="auto"><div><div class="t">Texas (strict)</div><div class="d">County-by-county board rules</div></div><div class="sw" onclick="this.classList.toggle('off')"></div></div>
+        <div class="auto"><div><div class="t">New York (strict)</div><div class="d">DFS filings, fee limits</div></div><div class="sw" onclick="this.classList.toggle('off')"></div></div>
+        <div class="auto"><div><div class="t">Georgia</div><div class="d">Active for this tenant</div></div><div class="sw" onclick="this.classList.toggle('off')"></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const nav=document.getElementById("nav");
+nav.addEventListener("click",e=>{const b=e.target.closest(".nav");if(!b)return;
+  [...nav.querySelectorAll(".nav")].forEach(n=>n.classList.remove("on"));b.classList.add("on");
+  const v=b.dataset.v;document.querySelectorAll(".view").forEach(s=>s.classList.toggle("hide",s.dataset.view!==v));
+  window.scrollTo(0,0);
+});
+// feed
+const feed=document.getElementById("feed");
+const seed=[
+ ["#0f9d6b","Reminder sent","SMS + email + push to Lisa Park: court tomorrow","2 min ago"],
+ ["#c98a08","Risk re-scored","Marcus Reed up to 79 after 9 quiet days","14 min ago"],
+ ["#e0455e","Re-arrest alert","Possible booking match, Marcus Reed, Cobb County","22 min ago"],
+ ["#4338ca","Collection nudge","R. Mendez SMS queued for 7 PM, best contact time","1 hr ago"],
+ ["#0f9d6b","Contract signed","Devon Hill bond agreement e-signed, GA template","2 hr ago"],
+];
+feed.innerHTML=seed.map(e=>`<div class="ev"><span class="dot" style="color:${e[0]};background:${e[0]}"></span><div><div>${e[1]} — <span class="muted">${e[2]}</span></div><small>${e[3]}</small></div></div>`).join("");
+// heatmap
+const heat=document.getElementById("heat");
+if(heat){let html="";const vals=[12,18,22,40,30,55,20, 25,33,48,60,42,70,35, 30,52,66,80,58,44,28, 18,26,38,72,90,61,40, 22,30,45,58,77,50,33];
+ vals.forEach(v=>{let col=v<35?"#0f9d6b":v<65?"#c98a08":"#e0455e";html+=`<div class="cell" style="background:${col}">${v}</div>`;});heat.innerHTML=html;}
+// ask
+function runAsk(){
+  const q=document.getElementById("ask").value.toLowerCase();
+  let a="Everything is current. All 9 automations running, Georgia compliance applied, nothing needs manual action right now.";
+  if(q.match(/follow|today|attention|who/))a="3 defendants need attention: Devon Hill (court tomorrow, score 86), Marcus Reed (re-arrest alert, score 79), and Carla Mendez (late payment). Reminders and tasks already queued.";
+  else if(q.match(/risk|score|fta/))a="3 of 38 bonds are high risk. Devon Hill 86, Marcus Reed 79, Carla Mendez 58. Scores use public data plus your own outcomes.";
+  else if(q.match(/money|owe|outstanding|collect|financ/))a="Outstanding receivables are $38,240 across 12 accounts. Predicted collectible this week: $4,100. Nudges are scheduled at each payer's best contact time.";
+  else if(q.match(/court|tomorrow|hearing|calendar/))a="Tomorrow: 2 hearings (Devon Hill 9 AM, Lisa Park 1:30 PM). Reminders by SMS, email and push are sending today.";
+  else if(q.match(/comply|audit|report|state/))a="Georgia DOI quarterly report and premium tax summary are generated and ready to file. CA, FL, TX, NY rule sets are available to toggle on.";
+  [...nav.querySelectorAll(".nav")].forEach(n=>n.classList.remove("on"));nav.querySelector('[data-v=overview]').classList.add("on");
+  document.querySelectorAll(".view").forEach(s=>s.classList.toggle("hide",s.dataset.view!=="overview"));
+  const box=document.getElementById("askAns");box.style.display="block";box.innerHTML="<b>✦ "+a+"</b>";window.scrollTo(0,0);
+}
+document.getElementById("ask").addEventListener("keydown",e=>{if(e.key==="Enter")runAsk();});
+</script>
+</body>
+</html>

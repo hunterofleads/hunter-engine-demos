@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hunter Engine — Bail Bond Operations OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f7fb; --ink:#10182b; --ink2:#3a4660; --muted:#7c879c;
+    --line:#e9ecf4; --card:#ffffff; --accent:#4338ca; --accent2:#0ea5a4;
+    --green:#0f9d6b; --amber:#c98a08; --red:#e0455e;
+    --greenbg:#e7f6ef; --amberbg:#fdf3df; --redbg:#fdebee;
+    --shadow:0 1px 2px rgba(16,24,43,.04),0 8px 24px rgba(16,24,43,.06);
+    --shadow-sm:0 1px 2px rgba(16,24,43,.05);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',system-ui,Arial,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+  .muted{color:var(--muted)}
+  header{display:flex;align-items:center;justify-content:space-between;
+    padding:18px 32px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+  .brand{display:flex;align-items:center;gap:13px}
+  .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#4338ca,#0ea5a4);
+    display:grid;place-items:center;color:#fff;font-weight:700;letter-spacing:.5px;box-shadow:var(--shadow-sm)}
+  .brand h1{font-family:'Fraunces',serif;font-size:19px;margin:0;font-weight:600;letter-spacing:-.2px}
+  .brand small{color:var(--muted);font-size:12px}
+  .tag{font-size:11px;color:var(--accent);background:#eef0fe;border:1px solid #dcdffb;
+    padding:5px 11px;border-radius:30px;font-weight:600;letter-spacing:.3px}
+  .wrap{max-width:1180px;margin:0 auto;padding:26px 32px 56px}
+  .hero{font-family:'Fraunces',serif;font-size:23px;font-weight:600;letter-spacing:-.3px;margin:6px 0 4px}
+  .sub{color:var(--muted);max-width:680px;margin-bottom:24px;line-height:1.6}
+  .sub b{color:var(--ink)}
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:22px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px;box-shadow:var(--shadow)}
+  .kpi .n{font-size:30px;font-weight:700;letter-spacing:-1px;font-family:'Fraunces',serif}
+  .kpi .l{color:var(--muted);font-size:12px;margin-top:4px;font-weight:500}
+  .kpi .pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:8px}
+  .p-red{background:var(--redbg);color:var(--red)} .p-amber{background:var(--amberbg);color:var(--amber)}
+  .p-green{background:var(--greenbg);color:var(--green)} .p-ink{background:#eef1f7;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:1.95fr 1fr;gap:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow)}
+  .card h2{font-size:15px;margin:0 0 16px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+  .live{font-size:11px;color:var(--green);font-weight:600;display:flex;align-items:center;gap:6px}
+  .live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px var(--greenbg)}
+  .tools{display:flex;gap:10px;margin-bottom:14px}
+  input[type=text]{flex:1;background:#fbfcfe;border:1px solid var(--line);color:var(--ink);
+    padding:11px 13px;border-radius:10px;font-family:inherit;font-size:13px;outline:none;transition:.15s}
+  input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px #eef0fe}
+  button{background:var(--accent);border:none;color:#fff;padding:11px 16px;border-radius:10px;
+    cursor:pointer;font-weight:600;font-size:13px;font-family:inherit;transition:.15s;white-space:nowrap}
+  button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:13px 10px;font-size:13px}
+  th{color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--line)}
+  tbody tr{border-bottom:1px solid var(--line);transition:.12s}
+  tbody tr:hover{background:#fafbff}
+  td b{font-weight:600}
+  .badge{padding:4px 11px;border-radius:30px;font-size:11px;font-weight:600;white-space:nowrap}
+  .b-ok{background:var(--greenbg);color:var(--green)}
+  .b-warn{background:var(--amberbg);color:var(--amber)}
+  .b-risk{background:var(--redbg);color:var(--red)}
+  .ai-q{display:block;width:100%;text-align:left;background:#fbfcfe;border:1px solid var(--line);
+    color:var(--ink);padding:12px 14px;border-radius:11px;margin-bottom:9px;cursor:pointer;font-weight:500;font-size:13px;transition:.12s}
+  .ai-q:hover{border-color:var(--accent);background:#f4f5ff;transform:none}
+  .ai-a{background:linear-gradient(180deg,#fbfbff,#f6f7ff);border:1px solid #e7e8fb;border-left:3px solid var(--accent);
+    padding:13px 15px;border-radius:11px;margin:-3px 0 13px;color:var(--ink2);display:none;line-height:1.55}
+  .feed{max-height:300px;overflow:auto;margin:-4px -4px 0}
+  .ev{display:flex;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line)}
+  .ev:last-child{border-bottom:none}
+  .dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex:none;box-shadow:0 0 0 3px #fff,0 0 0 4px currentColor}
+  .ev small{color:var(--muted);font-size:12px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
+  .bars{display:flex;align-items:flex-end;gap:16px;height:158px;padding-top:18px}
+  .bar{flex:1;background:linear-gradient(180deg,#5b50e0,#0ea5a4);border-radius:8px 8px 3px 3px;position:relative;transition:.3s}
+  .bar span{position:absolute;bottom:-22px;left:0;right:0;text-align:center;color:var(--muted);font-size:11px;font-weight:500}
+  .bar b{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:11px;font-weight:700;color:var(--ink2)}
+  .donut-c{display:flex;align-items:center;gap:22px}
+  .donut{width:150px;height:150px;border-radius:50%;position:relative;
+    background:conic-gradient(var(--green) 0 63%,var(--amber) 63% 92%,var(--red) 92% 100%)}
+  .donut::after{content:"38";position:absolute;inset:30px;background:#fff;border-radius:50%;
+    display:grid;place-items:center;font-family:'Fraunces',serif;font-size:26px;font-weight:600;box-shadow:inset 0 1px 3px rgba(0,0,0,.05)}
+  .leg div{display:flex;align-items:center;gap:9px;margin:8px 0;font-size:13px}
+  .sq{width:11px;height:11px;border-radius:4px;display:inline-block}
+  @media(max-width:920px){.kpis{grid-template-columns:repeat(2,1fr)}.grid,.row2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">HE</div>
+    <div><h1>Bail Bond Operations OS</h1><small>by Hunter Engine</small></div>
+  </div>
+  <div class="tag">DEMO · sample data</div>
+</header>
+
+<div class="wrap">
+  <div class="hero">Everything in one place. The system does the chasing.</div>
+  <div class="sub">Every bond is logged at intake. Court dates and check-ins track themselves, reminders go out by text and email, and anyone going quiet is flagged before it turns into a failure to appear. <b>You do not touch it after setup.</b></div>
+
+  <div class="kpis">
+    <div class="kpi"><span class="pill p-ink">PORTFOLIO</span><div class="n">38</div><div class="l">Active bonds</div></div>
+    <div class="kpi"><span class="pill p-amber">7 DAYS</span><div class="n">6</div><div class="l">Upcoming court dates</div></div>
+    <div class="kpi"><span class="pill p-amber">DUE</span><div class="n">9</div><div class="l">Check-ins due</div></div>
+    <div class="kpi"><span class="pill p-red">ALERT</span><div class="n">3</div><div class="l">FTA risk flags</div></div>
+    <div class="kpi"><span class="pill p-green">30 DAYS</span><div class="n">142</div><div class="l">Auto reminders sent</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Active Bonds <span class="muted" id="count"></span></h2>
+      <div class="tools">
+        <input type="text" id="search" placeholder="Search defendant or status..." />
+        <button onclick="sendReminders()">Send due reminders</button>
+      </div>
+      <table>
+        <thead><tr><th>Defendant</th><th>Bond</th><th>Court date</th><th>Last check-in</th><th>Next reminder</th><th>Status</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:20px">
+        <h2>Ask the AI</h2>
+        <button class="ai-q" onclick="toggle('a1')">Who should I follow up with today?</button>
+        <div class="ai-a" id="a1">3 clients need attention now. <b>Marcus Reed</b> (court in 2 days, no check-in for 9 days), <b>Tanya Brooks</b> (missed last check-in), and <b>Devon Hill</b> (court tomorrow). Reminders are already queued. Want a call script for each?</div>
+        <button class="ai-q" onclick="toggle('a2')">Which bonds are at risk right now?</button>
+        <div class="ai-a" id="a2">3 of 38 bonds are high risk, all from dropped contact. Each went 7 or more days without a check-in before going quiet. The system flagged them automatically so you can step in early.</div>
+        <button class="ai-q" onclick="toggle('a3')">Prep me for tomorrow.</button>
+        <div class="ai-a" id="a3">Tomorrow: 2 court dates (Devon Hill 9:00 AM, Lisa Park 1:30 PM), 4 check-ins due, 1 indemnitor payment reminder. All reminders are scheduled. Nothing needs sending by hand.</div>
+      </div>
+
+      <div class="card">
+        <h2>AI Activity <span class="live">live</span></h2>
+        <div class="feed" id="feed"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <h2>Reminders sent automatically <span class="muted">this week</span></h2>
+      <div class="bars">
+        <div class="bar" style="height:45%"><b>12</b><span>Mon</span></div>
+        <div class="bar" style="height:62%"><b>17</b><span>Tue</span></div>
+        <div class="bar" style="height:38%"><b>10</b><span>Wed</span></div>
+        <div class="bar" style="height:82%"><b>22</b><span>Thu</span></div>
+        <div class="bar" style="height:55%"><b>15</b><span>Fri</span></div>
+        <div class="bar" style="height:30%"><b>8</b><span>Sat</span></div>
+        <div class="bar" style="height:24%"><b>6</b><span>Sun</span></div>
+      </div>
+      <p class="muted" style="margin-top:30px">90 reminders this week. None sent by hand.</p>
+    </div>
+    <div class="card">
+      <h2>Portfolio risk</h2>
+      <div class="donut-c">
+        <div class="donut"></div>
+        <div class="leg">
+          <div><span class="sq" style="background:var(--green)"></span> On track · 24 bonds</div>
+          <div><span class="sq" style="background:var(--amber)"></span> Watch · 11 bonds</div>
+          <div><span class="sq" style="background:var(--red)"></span> High risk · 3 bonds</div>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:16px">Recalculated every time a check-in is missed or a court date nears. No spreadsheet to update.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const bonds=[
+ {d:"Devon Hill",amt:"$5,000",court:"Tomorrow 9:00 AM",last:"2 days ago",next:"Today 6:00 PM",s:"risk"},
+ {d:"Marcus Reed",amt:"$12,500",court:"In 2 days",last:"9 days ago",next:"Today 5:00 PM",s:"risk"},
+ {d:"Tanya Brooks",amt:"$3,000",court:"In 5 days",last:"Missed",next:"Today 4:00 PM",s:"risk"},
+ {d:"Lisa Park",amt:"$8,000",court:"Tomorrow 1:30 PM",last:"Yesterday",next:"Today 6:00 PM",s:"warn"},
+ {d:"Andre Cole",amt:"$2,500",court:"In 6 days",last:"Yesterday",next:"In 3 days",s:"warn"},
+ {d:"Priya Nair",amt:"$15,000",court:"In 9 days",last:"Today",next:"In 5 days",s:"ok"},
+ {d:"Sam Whitfield",amt:"$4,200",court:"In 12 days",last:"Today",next:"In 6 days",s:"ok"},
+ {d:"Carla Mendez",amt:"$6,800",court:"In 4 days",last:"2 days ago",next:"Tomorrow 10:00 AM",s:"warn"},
+ {d:"Jerome Banks",amt:"$1,500",court:"In 15 days",last:"Today",next:"In 7 days",s:"ok"},
+ {d:"Hannah Lowe",amt:"$9,500",court:"In 8 days",last:"3 days ago",next:"Tomorrow 9:00 AM",s:"warn"},
+];
+const sLabel={ok:["On track","b-ok"],warn:["Watch","b-warn"],risk:["High risk","b-risk"]};
+function render(list){
+  document.getElementById("rows").innerHTML=list.map(b=>{
+    const [t,c]=sLabel[b.s];
+    return `<tr><td><b>${b.d}</b></td><td>${b.amt}</td><td>${b.court}</td><td>${b.last}</td><td>${b.next}</td><td><span class="badge ${c}">${t}</span></td></tr>`;
+  }).join("");
+  document.getElementById("count").textContent="· "+list.length+" of "+bonds.length;
+}
+render(bonds);
+document.getElementById("search").addEventListener("input",e=>{
+  const q=e.target.value.toLowerCase();
+  render(bonds.filter(b=>(b.d+" "+sLabel[b.s][0]).toLowerCase().includes(q)));
+});
+function toggle(id){const el=document.getElementById(id);el.style.display=el.style.display==="block"?"none":"block";}
+
+const feed=document.getElementById("feed");
+const seed=[
+ ["#0f9d6b","Reminder sent","Text + email to Lisa Park: court tomorrow 1:30 PM","2 min ago"],
+ ["#c98a08","Risk flagged","Marcus Reed: no check-in for 9 days, moved to High risk","14 min ago"],
+ ["#0f9d6b","Check-in logged","Priya Nair confirmed via SMS reply","31 min ago"],
+ ["#4338ca","Follow-up scheduled","Andre Cole: check-in reminder set for in 3 days","1 hr ago"],
+ ["#e0455e","Escalation","Tanya Brooks missed check-in, indemnitor notified automatically","2 hr ago"],
+];
+function paint(){feed.innerHTML=seed.map(e=>`<div class="ev"><span class="dot" style="color:${e[0]};background:${e[0]}"></span><div><div>${e[1]} — <span class="muted">${e[2]}</span></div><small>${e[3]}</small></div></div>`).join("");}
+paint();
+function sendReminders(){
+  seed.unshift(["#0f9d6b","Reminders sent","9 due reminders dispatched by text and email in one click","just now"]);
+  paint();
+}
+</script>
+</body>
+</html>
